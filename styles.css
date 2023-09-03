@@ -71,10 +71,6 @@
    }
 
 
-   /* Nuevo  */
-
-
-
    table {
      border-collapse: collapse;
      width: 100%;
@@ -93,4 +89,16 @@
 
    tr:nth-child(even) {
      background-color: #f2f2f2;
+   }
+
+
+   #tipoOrden {
+     display: inline-block;
+     margin: 1% 2% 0% 0%;
+   }
+
+   #sectionTipo {
+     display: flex;
+     justify-content: flex-end;
+     margin: 0% 0% 1% 0%;
    }

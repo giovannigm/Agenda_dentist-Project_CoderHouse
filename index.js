@@ -1,20 +1,23 @@
+
 function inicio() {
     pedirDatos();
-
     const guardarBtn = document.getElementById("btnGuardar");
     guardarBtn.addEventListener("click", guardarConfiguracion);
     llenarSelectConHoras();
-
     const btnAgendar = document.getElementById("formularioAgenda");
     btnAgendar.addEventListener("submit", datosDeCita);
+
     agregarCita();
+
+    const selectOrden = document.getElementById("orden");
+    selectOrden.addEventListener("change", ordenarCitas);
+
 
 }
 
 function guardarConfiguracion() {
     const diasTrabajo = obtenerDiasTrabajo();
     const horarioDisponible = generarHorasEntre();
-
     if (diasTrabajo.length == 0 || horarioDisponible.length == 0) {
         const notificationContainer = document.getElementById("notificationContainer1");
         const notification = document.createElement("div");
@@ -24,33 +27,25 @@ function guardarConfiguracion() {
     } else {
         localStorage.setItem("diasDeTrabajo", diasTrabajo);
         localStorage.setItem("horasDeTrabajo", horarioDisponible);
-        llenarSelectConHoras();
-
-
     }
 }
 
 function obtenerDiasTrabajo() {
     const diasSeleccionados = [];
     const diasCheckbox = document.querySelectorAll("input[type=checkbox]:checked");
-
     diasCheckbox.forEach(checkbox => {
         diasSeleccionados.push(checkbox.id);
     });
-
     diasCheckbox.forEach(checkbox => {
         checkbox.checked = false;
     });
-
     return diasSeleccionados;
-
 }
 
 function generarHorasEntre() {
     const horaInicio = document.getElementById("horaApertura").value;
     const horaFin = document.getElementById("horaCierre").value;
     const horasGeneradas = [];
-
     if (horaInicio >= horaFin) {
         return horasGeneradas;
     } else {
@@ -79,19 +74,19 @@ function generarHorasEntre() {
 
 
 function llenarSelectConHoras() {
-    const horas = localStorage.getItem("horasDeTrabajo").split(",");
-    const horasSelect = document.getElementById("horasSelect");
-    horasSelect.innerHTML = "";
-    horas.forEach(hora => {
-        const option = document.createElement("option");
-        option.value = hora;
-        option.textContent = hora;
-        horasSelect.appendChild(option);
-    })
-
+    const horasStr = localStorage.getItem("horasDeTrabajo");
+    if (horasStr) {
+        const horas = horasStr.split(",");
+        const horasSelect = document.getElementById("horasSelect");
+        horasSelect.innerHTML = "";
+        horas.forEach(hora => {
+            const option = document.createElement("option");
+            option.value = hora;
+            option.textContent = hora;
+            horasSelect.appendChild(option);
+        })
+    }
 }
-
-//////////////////////////////////////////////////////////////////////////////////////////
 
 const citasAgendadas = JSON.parse(localStorage.getItem("citasAgendadas")) || [];
 function datosDeCita(event) {
@@ -101,28 +96,21 @@ function datosDeCita(event) {
     const telefonoPersona = document.getElementById("telefono").value;
     const fechaAmodificar = document.getElementById("fecha").value;
     const eleccionHora = document.getElementById("horasSelect").value;
-    console.log(fechaAmodificar); // Salida: 2023-08-23
     const partesFecha = fechaAmodificar.split("-");
     const year = parseInt(partesFecha[0]);
     const month = parseInt(partesFecha[1]);
     const day = parseInt(partesFecha[2]);
     const fechaPersona = `${day}/${month}/${year}`
-    console.log(fechaPersona) // Salida: 23/08/2023
-    //saber en que dia seleciono mediante el dia con numero 
     const fechaDeSeleccion = new Date(year, month - 1, day);
     const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const diaSemana = diasSemana[fechaDeSeleccion.getDay()];
-    console.log(diaSemana);
-    ////
     const agregarUnaCita = ({ nombre: nombrePersona, apellido: apellidoPersona, telefono: telefonoPersona, fecha: fechaPersona, horario: eleccionHora });
     const existenFecha = citasAgendadas.find(cita => cita.fecha === fechaPersona);
     const existenteHora = citasAgendadas.find(cita => cita.horario === eleccionHora);
     const fechaHoy = new Date();
-    // const diaActual = fechaHoy.toLocaleDateString('es-ES', { weekday: 'long' });
     const mesActual = fechaHoy.toLocaleDateString('es-ES', { month: 'numeric' });
     const añoActual = fechaHoy.toLocaleDateString('es-ES', { year: 'numeric' });
     const diasAgendados = localStorage.getItem("diasDeTrabajo").split(",");
-    console.log(diasAgendados);
     if (year < añoActual) {
         const notificationContainer = document.getElementById("notificationContainer2");
         notificationContainer.innerHTML = "";
@@ -141,7 +129,6 @@ function datosDeCita(event) {
         } else {
             if (diasAgendados.includes(diaSemana)) {
                 if (existenFecha && existenteHora) {
-                    console.log("existe")
                     const notificationContainer = document.getElementById("notificationContainer2");
                     notificationContainer.innerHTML = "";
                     const notification = document.createElement("div");
@@ -149,10 +136,9 @@ function datosDeCita(event) {
                     notification.textContent = "Ya existe una cita agendada en este horario.";
                     notificationContainer.appendChild(notification);
                 } else {
-                    console.log("no existe")
                     citasAgendadas.push(agregarUnaCita);
                     localStorage.setItem("citasAgendadas", JSON.stringify(citasAgendadas));
-                    location.reload(); // recarga la pagina 
+                    location.reload();
                 }
             } else {
                 const notificationContainer = document.getElementById("notificationContainer2");
@@ -165,6 +151,40 @@ function datosDeCita(event) {
         }
     }
 }
+
+function ordenarCitas() {
+    const ordenDeAgenda = document.getElementById("orden");
+    const orden = ordenDeAgenda.value;
+    if (orden === "1") {
+        citasAgendadas.sort((citaA, citaB) => {
+            const nombreA = citaA.nombre.toLowerCase();
+            const nombreB = citaB.nombre.toLowerCase();
+
+            return nombreA.localeCompare(nombreB);
+        });
+    } else if (orden === "2") {
+        //opcion 2
+        citasAgendadas.sort((citaA, citaB) => {
+            const fechaA = new Date(citaA.fecha.split("/").reverse().join("/"));
+            const fechaB = new Date(citaB.fecha.split("/").reverse().join("/"));
+
+            return fechaA - fechaB;
+        });
+
+    } else {
+        citasAgendadas.sort((citaB, citaA) => {
+            const nombreA = citaA.nombre.toLowerCase();
+            const nombreB = citaB.nombre.toLowerCase();
+            return nombreA.localeCompare(nombreB);
+        });
+    }
+    const tableAgenda = document.getElementById("tableAgenda");
+    tableAgenda.innerHTML = '';
+    agregarCita();
+    pedirDatos();
+
+}
+
 
 function agregarCita() {
     const tableAgenda = document.getElementById("tableAgenda");
@@ -199,10 +219,12 @@ function agregarCita() {
         tableAgenda.appendChild(nuevaFila);
     });
 }
+
 const cargarDatosEnTabla = (data) => {
     const tableAgenda = document.getElementById("tableAgenda");
 
     data.forEach((dato) => {
+
         const nuevaFila = document.createElement("tr");
         const celdaNombre = document.createElement("td");
         celdaNombre.textContent = dato.nombre;
