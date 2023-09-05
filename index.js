@@ -1,4 +1,3 @@
-
 function inicio() {
     pedirDatos();
     const guardarBtn = document.getElementById("btnGuardar");
@@ -6,13 +5,9 @@ function inicio() {
     llenarSelectConHoras();
     const btnAgendar = document.getElementById("formularioAgenda");
     btnAgendar.addEventListener("submit", datosDeCita);
-
     agregarCita();
-
     const selectOrden = document.getElementById("orden");
     selectOrden.addEventListener("change", ordenarCitas);
-
-
 }
 
 function guardarConfiguracion() {
@@ -27,6 +22,7 @@ function guardarConfiguracion() {
     } else {
         localStorage.setItem("diasDeTrabajo", diasTrabajo);
         localStorage.setItem("horasDeTrabajo", horarioDisponible);
+        llenarSelectConHoras();
     }
 }
 
