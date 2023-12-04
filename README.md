@@ -18,7 +18,7 @@ When the person selects the day and time, the system looks for what day of the w
 <img width="417" alt="Captura de pantalla 2023-12-04 a la(s) 12 21 31 p  m" src="https://github.com/giovannigm/Agenda_dentist-Project_CoderHouse/assets/58411051/21b4e48b-43fa-49c2-9335-6aeb5fe81e78">
 
 
-
+#
 
 ### Technologies used
 - HTML
